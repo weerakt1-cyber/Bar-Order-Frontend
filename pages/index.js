@@ -1,8 +1,5 @@
 import { useState, useEffect } from "react";
 
-// PromptPay QR — ใช้ library จาก CDN ไม่ต้อง npm install
-// สร้าง QR โดยใช้ standard PromptPay EMV QR format
-
 // ============================================================
 // TRANSLATIONS
 // ============================================================
@@ -27,7 +24,7 @@ const T = {
     successMessage: "Our staff will prepare and serve your order as soon as possible.",
     newOrder: "Place New Order", thb: "THB", back: "Back",
     loading: "Submitting...", note: "Note", time: "Time",
-    scanToPay: "Scan to pay",
+    scanToPay: "Scan to pay", selectOption: "Please select",
   },
   th: {
     appName: "Siam Amsterdam", appSub: "สั่งออนไลน์",
@@ -49,7 +46,7 @@ const T = {
     successMessage: "พนักงานของเราจะเตรียมและเสิร์ฟคำสั่งของคุณโดยเร็วที่สุด",
     newOrder: "สั่งใหม่", thb: "บาท", back: "กลับ",
     loading: "กำลังส่ง...", note: "หมายเหตุ", time: "เวลา",
-    scanToPay: "สแกนเพื่อชำระ",
+    scanToPay: "สแกนเพื่อชำระ", selectOption: "กรุณาเลือก",
   },
   ru: {
     appName: "Siam Amsterdam", appSub: "Онлайн заказ",
@@ -71,7 +68,7 @@ const T = {
     successMessage: "Персонал приготовит и подаст заказ как можно скорее.",
     newOrder: "Новый заказ", thb: "бат", back: "Назад",
     loading: "Отправка...", note: "Заметка", time: "Время",
-    scanToPay: "Сканировать для оплаты",
+    scanToPay: "Сканировать для оплаты", selectOption: "Выберите",
   },
   de: {
     appName: "Siam Amsterdam", appSub: "Online Bestellen",
@@ -93,12 +90,22 @@ const T = {
     successMessage: "Unser Personal bringt Ihre Bestellung so schnell wie möglich.",
     newOrder: "Neue Bestellung", thb: "THB", back: "Zurück",
     loading: "Senden...", note: "Notiz", time: "Zeit",
-    scanToPay: "Zum Bezahlen scannen",
+    scanToPay: "Zum Bezahlen scannen", selectOption: "Bitte wählen",
   },
 };
 
 // ============================================================
-// SIAM AMSTERDAM — เมนูจริง (อัปเดต 21/03/2026)
+// HELPER — สร้าง options object 4 ภาษา
+// ============================================================
+function opt(label_en, label_th, label_ru, label_de, choices) {
+  return {
+    label: { en: label_en, th: label_th, ru: label_ru, de: label_de },
+    choices: choices.map(([en, th, ru, de]) => ({ en, th, ru, de })),
+  };
+}
+
+// ============================================================
+// SIAM AMSTERDAM MENU — v3 พร้อม Options
 // ============================================================
 const MENU = [
   {
@@ -124,11 +131,40 @@ const MENU = [
       { id: 11, price: 80, enabled: true, name: { en: "Asahi", th: "อาซาฮี", ru: "Асахи", de: "Asahi" } },
       { id: 12, price: 90, enabled: true, name: { en: "Budweiser", th: "บัดไวเซอร์", ru: "Будвайзер", de: "Budweiser" } },
       { id: 13, price: 90, enabled: true, name: { en: "Stella Artois", th: "สเตลล่า อาร์ทัวส์", ru: "Стелла Артуа", de: "Stella Artois" } },
-      { id: 14, price: 100, enabled: true, name: { en: "German Recipe", th: "เยอรมัน เรสซิปี้", ru: "Немецкий рецепт", de: "German Recipe" } },
-      { id: 15, price: 120, enabled: true, name: { en: "Beerlao", th: "เบียร์ลาว", ru: "Бирлао", de: "Beerlao" } },
+      {
+        id: 14, price: 100, enabled: true,
+        name: { en: "German Recipe", th: "เยอรมัน เรสซิปี้", ru: "Немецкий рецепт", de: "German Recipe" },
+        options: [
+          opt("Type", "ประเภท", "Тип", "Typ", [
+            ["Lager", "ลาเกอร์", "Лагер", "Lager"],
+            ["Unfiltered", "ไม่กรอง", "Нефильтрованное", "Ungefiltert"],
+            ["Dark", "ดาร์ก", "Тёмное", "Dunkel"],
+          ]),
+        ],
+      },
+      {
+        id: 15, price: 120, enabled: true,
+        name: { en: "Beerlao", th: "เบียร์ลาว", ru: "Бирлао", de: "Beerlao" },
+        options: [
+          opt("Type", "ประเภท", "Тип", "Typ", [
+            ["Premium Lager", "พรีเมี่ยม ลาเกอร์", "Премиум Лагер", "Premium Lager"],
+            ["IPA", "IPA", "IPA", "IPA"],
+            ["Dark", "ดาร์ก", "Тёмное", "Dunkel"],
+          ]),
+        ],
+      },
       { id: 16, price: 120, enabled: true, name: { en: "Corona Beer", th: "โคโรน่า", ru: "Корона", de: "Corona" } },
       { id: 17, price: 150, enabled: true, name: { en: "Savanna Premium Cider", th: "ซาวานน่า ไซเดอร์", ru: "Саванна Сидр", de: "Savanna Cider" } },
-      { id: 18, price: 180, enabled: true, name: { en: "Hoegaarden 550ml", th: "ฮูการ์เดน 550มล.", ru: "Хугарден 550мл", de: "Hoegaarden 550ml" } },
+      {
+        id: 18, price: 180, enabled: true,
+        name: { en: "Hoegaarden 550ml", th: "ฮูการ์เดน 550มล.", ru: "Хугарден 550мл", de: "Hoegaarden 550ml" },
+        options: [
+          opt("Type", "ประเภท", "Тип", "Typ", [
+            ["Witbier", "วิทเบียร์", "Витбир", "Witbier"],
+            ["Rosée", "โรเซ่", "Розе", "Rosée"],
+          ]),
+        ],
+      },
     ],
   },
   {
@@ -172,13 +208,54 @@ const MENU = [
     id: "snacks", emoji: "🍟",
     name: { en: "Snacks", th: "ของว่าง", ru: "Закуски", de: "Snacks" },
     items: [
-      { id: 44, price: 50, enabled: true, name: { en: "Pringles Small", th: "พริงเกิ้ล เล็ก", ru: "Принглс маленький", de: "Pringles Klein" } },
-      { id: 45, price: 90, enabled: true, name: { en: "Pringles Large", th: "พริงเกิ้ล ใหญ่", ru: "Принглс большой", de: "Pringles Groß" } },
+      {
+        id: 44, price: 50, enabled: true,
+        name: { en: "Pringles Small", th: "พริงเกิ้ล เล็ก", ru: "Принглс маленький", de: "Pringles Klein" },
+        options: [
+          opt("Flavour", "รสชาติ", "Вкус", "Geschmack", [
+            ["Original", "ออริจินัล", "Оригинальный", "Original"],
+            ["Sour Cream & Onions", "เปรี้ยวครีมหัวหอม", "Сметана и лук", "Saure Sahne & Zwiebel"],
+            ["Cheese", "ชีส", "Сыр", "Käse"],
+          ]),
+        ],
+      },
+      {
+        id: 45, price: 90, enabled: true,
+        name: { en: "Pringles Large", th: "พริงเกิ้ล ใหญ่", ru: "Принглс большой", de: "Pringles Groß" },
+        options: [
+          opt("Flavour", "รสชาติ", "Вкус", "Geschmack", [
+            ["Original", "ออริจินัล", "Оригинальный", "Original"],
+            ["Sour Cream & Onions", "เปรี้ยวครีมหัวหอม", "Сметана и лук", "Saure Sahne & Zwiebel"],
+            ["Cheese", "ชีส", "Сыр", "Käse"],
+          ]),
+        ],
+      },
       { id: 46, price: 20, enabled: true, name: { en: "Nuts Small", th: "ถั่ว เล็ก", ru: "Орешки маленькие", de: "Nüsse Klein" } },
       { id: 47, price: 30, enabled: true, name: { en: "Nuts", th: "ถั่ว", ru: "Орешки", de: "Nüsse" } },
       { id: 48, price: 40, enabled: true, name: { en: "DALE Chocolate", th: "เดล ช็อกโกแลต", ru: "ДАЛЕ Шоколад", de: "DALE Schokolade" } },
-      { id: 49, price: 50, enabled: true, name: { en: "Snickers", th: "สนิกเกอร์ส", ru: "Сникерс", de: "Snickers" } },
-      { id: 50, price: 60, enabled: true, name: { en: "Rye Bread Snack", th: "ขนมปังไรย์", ru: "Ржаные гренки", de: "Roggenbrotstück" } },
+      {
+        id: 49, price: 50, enabled: true,
+        name: { en: "Snickers", th: "สนิกเกอร์ส", ru: "Сникерс", de: "Snickers" },
+        options: [
+          opt("Type", "ประเภท", "Тип", "Typ", [
+            ["Original", "ออริจินัล", "Оригинальный", "Original"],
+            ["White", "ไวท์", "Белый", "Weiß"],
+          ]),
+        ],
+      },
+      {
+        id: 50, price: 60, enabled: true,
+        name: { en: "Rye Bread Snack", th: "ขนมปังไรย์", ru: "Ржаные гренки", de: "Roggenbrotstück" },
+        options: [
+          opt("Flavour", "รสชาติ", "Вкус", "Geschmack", [
+            ["Cheese", "ชีส", "Сыр", "Käse"],
+            ["Sour Cream & Onions", "เปรี้ยวครีมหัวหอม", "Сметана и лук", "Saure Sahne & Zwiebel"],
+            ["Jellymeat", "เจลลี่มีท", "Мясное желе", "Fleischgelee"],
+            ["BBQ", "บาร์บีคิว", "Барбекю", "BBQ"],
+            ["Ajika Sauce", "อาจิกา ซอส", "Аджика", "Ajika-Sauce"],
+          ]),
+        ],
+      },
     ],
   },
   {
@@ -187,15 +264,42 @@ const MENU = [
     items: [
       { id: 51, price: 20, enabled: true, name: { en: "Water", th: "น้ำเปล่า", ru: "Вода", de: "Wasser" } },
       { id: 52, price: 30, enabled: true, name: { en: "Mineral Water", th: "น้ำแร่", ru: "Минеральная вода", de: "Mineralwasser" } },
-      { id: 53, price: 40, enabled: true, name: { en: "Coca Cola", th: "โค้ก", ru: "Кока-Кола", de: "Coca Cola" } },
+      {
+        id: 53, price: 40, enabled: true,
+        name: { en: "Coca Cola", th: "โค้ก", ru: "Кока-Кола", de: "Coca Cola" },
+        options: [
+          opt("Type", "ประเภท", "Тип", "Typ", [
+            ["Can", "กระป๋อง", "Банка", "Dose"],
+            ["Bottle", "ขวด", "Бутылка", "Flasche"],
+          ]),
+        ],
+      },
       { id: 54, price: 40, enabled: true, name: { en: "Coca Cola Zero", th: "โค้ก ซีโร่", ru: "Кока-Кола Зеро", de: "Coca Cola Zero" } },
       { id: 55, price: 40, enabled: true, name: { en: "Sprite", th: "สไปรท์", ru: "Спрайт", de: "Sprite" } },
       { id: 56, price: 40, enabled: true, name: { en: "Schweppes", th: "ชเวปส์", ru: "Швепс", de: "Schweppes" } },
       { id: 57, price: 40, enabled: true, name: { en: "Lipton Iced Tea", th: "ลิปตัน ชาเย็น", ru: "Липтон холодный чай", de: "Lipton Eistee" } },
       { id: 58, price: 30, enabled: true, name: { en: "Soda Water", th: "โซดา", ru: "Содовая", de: "Sodawasser" } },
-      { id: 59, price: 50, enabled: true, name: { en: "Gatorade", th: "เกเตอเรด", ru: "Гейторейд", de: "Gatorade" } },
+      {
+        id: 59, price: 50, enabled: true,
+        name: { en: "Gatorade", th: "เกเตอเรด", ru: "Гейторейд", de: "Gatorade" },
+        options: [
+          opt("Flavour", "รสชาติ", "Вкус", "Geschmack", [
+            ["Blue (Cool Blue)", "บลู", "Синий", "Blau"],
+            ["Lime (Citrus Charge)", "ไลม์", "Лайм", "Limette"],
+          ]),
+        ],
+      },
       { id: 60, price: 40, enabled: true, name: { en: "Juice", th: "น้ำผลไม้", ru: "Сок", de: "Saft" } },
-      { id: 61, price: 40, enabled: true, name: { en: "Singha Soda Sparkling", th: "สิงห์ โซดา", ru: "Сингха Газировка", de: "Singha Sprudelwasser" } },
+      {
+        id: 61, price: 40, enabled: true,
+        name: { en: "Singha Soda Sparkling", th: "สิงห์ โซดา", ru: "Сингха Газировка", de: "Singha Sprudelwasser" },
+        options: [
+          opt("Flavour", "รสชาติ", "Вкус", "Geschmack", [
+            ["Lemon Soda", "เลมอนโซดา", "Лимонная содовая", "Zitronenlimonade"],
+            ["Lemon Cream Soda", "เลมอนครีมโซดา", "Лимонный крем-содовый", "Zitronen-Cream-Soda"],
+          ]),
+        ],
+      },
     ],
   },
 ];
@@ -208,10 +312,9 @@ const TABLES = [
 ];
 
 // ============================================================
-// PROMPTPAY QR — สร้าง QR โดยไม่ต้อง npm install
-// ใช้ Algorithm มาตรฐาน EMV QR Code ของไทย
+// PROMPTPAY QR — ไม่ต้อง npm install ใดๆ
 // ============================================================
-const PROMPTPAY_ID = "0637317929"; // ← เปลี่ยนเป็นเบอร์หรือเลขบัตรประชาชนร้านจริง
+const PROMPTPAY_ID = "0637317929"; // ← เปลี่ยนเป็นเบอร์จริงของร้าน
 
 function crc16(data) {
   let crc = 0xFFFF;
@@ -225,106 +328,59 @@ function crc16(data) {
 }
 
 function f(id, value) {
-  const len = value.length.toString().padStart(2, "0");
-  return `${id}${len}${value}`;
+  return `${id}${value.length.toString().padStart(2, "0")}${value}`;
 }
 
 function buildPromptPayQR(amount) {
   const id = PROMPTPAY_ID.replace(/-/g, "");
-  const sanitized = id.startsWith("0")
-    ? "0066" + id.substring(1)
-    : id;
-  const target = f("00", "A000000677010111") + f("01", sanitized);
-  const merchant = f("29", target);
+  const sanitized = id.startsWith("0") ? "0066" + id.substring(1) : id;
+  const merchant = f("29", f("00", "A000000677010111") + f("01", sanitized));
   const amountStr = amount > 0 ? f("54", amount.toFixed(2)) : "";
-  const payload =
-    f("00", "01") +
-    f("01", "12") +
-    merchant +
-    f("53", "764") +
-    amountStr +
-    f("58", "TH") +
-    "6304";
+  const payload = f("00", "01") + f("01", "12") + merchant + f("53", "764") + amountStr + f("58", "TH") + "6304";
   return payload + crc16(payload);
 }
 
-// QR Canvas — วาด QR Code บน canvas โดยใช้ qrcode-generator CDN
 function QRImage({ value, size = 190 }) {
   const [src, setSrc] = useState("");
-
   useEffect(() => {
     if (!value || typeof window === "undefined") return;
-
-    const script = document.querySelector('script[src*="qrcodejs"]') ||
-      (() => {
-        const s = document.createElement("script");
-        s.src = "https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js";
-        document.head.appendChild(s);
-        return s;
-      })();
-
     const tryRender = () => {
-      if (typeof window.QRCode === "undefined") {
-        setTimeout(tryRender, 200);
-        return;
-      }
+      if (typeof window.QRCode === "undefined") { setTimeout(tryRender, 200); return; }
       const div = document.createElement("div");
       try {
-        new window.QRCode(div, {
-          text: value,
-          width: size,
-          height: size,
-          colorDark: "#000000",
-          colorLight: "#ffffff",
-          correctLevel: window.QRCode.CorrectLevel.M,
-        });
+        new window.QRCode(div, { text: value, width: size, height: size, colorDark: "#000000", colorLight: "#ffffff", correctLevel: window.QRCode.CorrectLevel.M });
         setTimeout(() => {
           const img = div.querySelector("img");
           const canvas = div.querySelector("canvas");
-          if (img && img.src) setSrc(img.src);
+          if (img?.src) setSrc(img.src);
           else if (canvas) setSrc(canvas.toDataURL());
         }, 300);
-      } catch (e) {
-        console.error("QR render error:", e);
-      }
+      } catch (e) { console.error("QR error:", e); }
     };
-
-    if (script.readyState === "complete" || typeof window.QRCode !== "undefined") {
+    const existing = document.querySelector('script[src*="qrcodejs"]');
+    if (!existing) {
+      const s = document.createElement("script");
+      s.src = "https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js";
+      s.onload = tryRender;
+      document.head.appendChild(s);
+    } else if (typeof window.QRCode !== "undefined") {
       tryRender();
     } else {
-      script.onload = tryRender;
+      existing.addEventListener("load", tryRender);
     }
   }, [value, size]);
 
-  if (!src) {
-    return (
-      <div style={{
-        width: size, height: size, background: "#fff",
-        borderRadius: "12px", display: "flex",
-        alignItems: "center", justifyContent: "center",
-        color: "#999", fontSize: "13px", margin: "0 auto",
-      }}>
-        กำลังสร้าง QR...
-      </div>
-    );
-  }
-
-  return (
-    <img
-      src={src}
-      alt="PromptPay QR"
-      style={{
-        width: size, height: size,
-        borderRadius: "12px",
-        display: "block",
-        margin: "0 auto",
-      }}
-    />
+  return src ? (
+    <img src={src} alt="PromptPay QR" style={{ width: size, height: size, borderRadius: "12px", display: "block", margin: "0 auto" }} />
+  ) : (
+    <div style={{ width: size, height: size, background: "#fff", borderRadius: "12px", display: "flex", alignItems: "center", justifyContent: "center", color: "#999", fontSize: "13px", margin: "0 auto" }}>
+      กำลังสร้าง QR...
+    </div>
   );
 }
 
 // ============================================================
-// GLOBAL STYLES
+// STYLES
 // ============================================================
 const GLOBAL_CSS = `
   @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,900;1,400&family=Barlow:wght@300;400;500;600;700;900&display=swap');
@@ -345,6 +401,8 @@ const GLOBAL_CSS = `
   .cart-btn { animation: pulse 2.5s ease-in-out infinite; }
   .lang-btn:active, .qty-btn:active, .remove-btn:active { transform: scale(0.93); }
   .menu-item:active { transform: scale(0.98); }
+  .opt-btn { transition: all 0.15s; }
+  .opt-btn:active { transform: scale(0.95); }
   .cat-pill { transition: all 0.2s ease; }
   .pay-option { transition: all 0.2s ease; }
   .pay-option:active { transform: scale(0.98); }
@@ -365,95 +423,30 @@ const C = {
 };
 
 const S = {
-  card: {
-    background: C.bgCard,
-    borderRadius: "16px",
-    border: `1px solid ${C.border}`,
-    boxShadow: "0 4px 24px rgba(0,0,0,0.45), inset 0 1px 0 rgba(200,135,46,0.08)",
-  },
-  input: {
-    background: "rgba(0,0,0,0.35)",
-    border: `1px solid ${C.border}`,
-    borderRadius: "14px",
-    color: C.cream,
-    padding: "15px 18px",
-    fontSize: "16px",
-    width: "100%",
-    fontFamily: "'Barlow', sans-serif",
-    fontWeight: 500,
-    transition: "all 0.2s",
-  },
-  btnPrimary: {
-    background: `linear-gradient(135deg, ${C.gold} 0%, ${C.goldLight} 50%, ${C.gold} 100%)`,
-    border: "none",
-    borderRadius: "14px",
-    color: "#1A0C07",
-    fontWeight: 800,
-    fontSize: "17px",
-    padding: "17px",
-    width: "100%",
-    cursor: "pointer",
-    boxShadow: `0 4px 18px rgba(200,135,46,0.4)`,
-    fontFamily: "'Barlow', sans-serif",
-    transition: "all 0.2s",
-  },
-  btnGhost: {
-    background: "transparent",
-    border: `1px solid ${C.border}`,
-    borderRadius: "14px",
-    color: C.gold,
-    fontWeight: 700,
-    fontSize: "15px",
-    padding: "15px",
-    width: "100%",
-    cursor: "pointer",
-    fontFamily: "'Barlow', sans-serif",
-    transition: "all 0.2s",
-  },
-  label: {
-    color: C.muted,
-    fontSize: "11px",
-    letterSpacing: "2px",
-    textTransform: "uppercase",
-    fontWeight: 700,
-    display: "block",
-    marginBottom: "8px",
-    fontFamily: "'Barlow', sans-serif",
-  },
-  pageWrap: {
-    background: C.bg,
-    minHeight: "100vh",
-    fontFamily: "'Barlow', sans-serif",
-    maxWidth: "480px",
-    margin: "0 auto",
-    position: "relative",
-  },
+  card: { background: C.bgCard, borderRadius: "16px", border: `1px solid ${C.border}`, boxShadow: "0 4px 24px rgba(0,0,0,0.45), inset 0 1px 0 rgba(200,135,46,0.08)" },
+  input: { background: "rgba(0,0,0,0.35)", border: `1px solid ${C.border}`, borderRadius: "14px", color: C.cream, padding: "15px 18px", fontSize: "16px", width: "100%", fontFamily: "'Barlow', sans-serif", fontWeight: 500, transition: "all 0.2s" },
+  btnPrimary: { background: `linear-gradient(135deg, ${C.gold} 0%, ${C.goldLight} 50%, ${C.gold} 100%)`, border: "none", borderRadius: "14px", color: "#1A0C07", fontWeight: 800, fontSize: "17px", padding: "17px", width: "100%", cursor: "pointer", boxShadow: `0 4px 18px rgba(200,135,46,0.4)`, fontFamily: "'Barlow', sans-serif", transition: "all 0.2s" },
+  btnGhost: { background: "transparent", border: `1px solid ${C.border}`, borderRadius: "14px", color: C.gold, fontWeight: 700, fontSize: "15px", padding: "15px", width: "100%", cursor: "pointer", fontFamily: "'Barlow', sans-serif", transition: "all 0.2s" },
+  label: { color: C.muted, fontSize: "11px", letterSpacing: "2px", textTransform: "uppercase", fontWeight: 700, display: "block", marginBottom: "8px", fontFamily: "'Barlow', sans-serif" },
+  pageWrap: { background: C.bg, minHeight: "100vh", fontFamily: "'Barlow', sans-serif", maxWidth: "480px", margin: "0 auto", position: "relative" },
 };
 
-const woodBg = {
-  background: `repeating-linear-gradient(97deg,transparent 0px,transparent 2px,rgba(0,0,0,.025) 2px,rgba(0,0,0,.025) 3px),#1A0C07`,
-};
+const woodBg = { background: `repeating-linear-gradient(97deg,transparent 0px,transparent 2px,rgba(0,0,0,.025) 2px,rgba(0,0,0,.025) 3px),#1A0C07` };
 
 // ============================================================
 // COMPONENTS
 // ============================================================
 function LangBar({ lang, setLang, compact = false }) {
-  const langs = [["th", "ไทย"], ["en", "EN"], ["ru", "RU"], ["de", "DE"]];
   return (
     <div style={{ display: "flex", gap: compact ? "5px" : "8px" }}>
-      {langs.map(([code, label]) => (
+      {[["th", "ไทย"], ["en", "EN"], ["ru", "RU"], ["de", "DE"]].map(([code, label]) => (
         <button key={code} className="lang-btn" onClick={() => setLang(code)} style={{
-          padding: compact ? "5px 8px" : "8px 12px",
-          borderRadius: "10px",
+          padding: compact ? "5px 8px" : "8px 12px", borderRadius: "10px",
           border: lang === code ? `1px solid ${C.borderActive}` : `1px solid ${C.border}`,
           background: lang === code ? "rgba(200,135,46,0.22)" : "rgba(0,0,0,0.25)",
           color: lang === code ? C.gold : C.muted,
-          fontSize: compact ? "10px" : "12px",
-          cursor: "pointer",
-          fontWeight: lang === code ? 800 : 600,
-          fontFamily: "'Barlow', sans-serif",
-          transition: "all 0.15s",
-          lineHeight: 1,
+          fontSize: compact ? "10px" : "12px", cursor: "pointer",
+          fontWeight: lang === code ? 800 : 600, fontFamily: "'Barlow', sans-serif", lineHeight: 1,
         }}>{label}</button>
       ))}
     </div>
@@ -462,30 +455,55 @@ function LangBar({ lang, setLang, compact = false }) {
 
 function PageHeader({ title, backLabel, onBack, lang, setLang, sub }) {
   return (
-    <div style={{
-      background: C.header,
-      padding: "14px 18px",
-      position: "sticky", top: 0, zIndex: 200,
-      borderBottom: `1px solid ${C.border}`,
-    }}>
+    <div style={{ background: C.header, padding: "14px 18px", position: "sticky", top: 0, zIndex: 200, borderBottom: `1px solid ${C.border}` }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <div style={{ minWidth: 60 }}>
-          {onBack && (
-            <button onClick={onBack} style={{
-              background: "none", border: "none", color: C.gold,
-              fontSize: "14px", cursor: "pointer",
-              fontFamily: "'Barlow', sans-serif", fontWeight: 700, padding: 0,
-            }}>← {backLabel}</button>
-          )}
+          {onBack && <button onClick={onBack} style={{ background: "none", border: "none", color: C.gold, fontSize: "14px", cursor: "pointer", fontFamily: "'Barlow', sans-serif", fontWeight: 700, padding: 0 }}>← {backLabel}</button>}
         </div>
         <div style={{ textAlign: "center", flex: 1 }}>
           <h2 style={{ fontFamily: "'Playfair Display', serif", color: C.gold, margin: 0, fontSize: "21px" }}>{title}</h2>
           {sub && <p style={{ color: C.muted, margin: "2px 0 0", fontSize: "11px" }}>{sub}</p>}
         </div>
-        <div style={{ minWidth: 60, display: "flex", justifyContent: "flex-end" }}>
-          <LangBar lang={lang} setLang={setLang} compact />
-        </div>
+        <div style={{ minWidth: 60, display: "flex", justifyContent: "flex-end" }}><LangBar lang={lang} setLang={setLang} compact /></div>
       </div>
+    </div>
+  );
+}
+
+// Options selector component
+function OptionsSelector({ item, lang, itemOpts, setItemOpts, t }) {
+  if (!item.options?.length) return null;
+  return (
+    <div style={{ marginTop: "10px" }}>
+      {item.options.map((opt, oi) => {
+        const key = `${item.id}-${oi}`;
+        const selected = itemOpts[key];
+        return (
+          <div key={oi} style={{ marginBottom: "8px" }}>
+            <p style={{ color: C.muted, fontSize: "11px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "1px", marginBottom: "6px" }}>
+              {opt.label[lang]}:
+            </p>
+            <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
+              {opt.choices.map((ch, ci) => {
+                const isSelected = selected === ci;
+                return (
+                  <button key={ci} className="opt-btn"
+                    onClick={(e) => { e.stopPropagation(); setItemOpts(prev => ({ ...prev, [key]: ci })); }}
+                    style={{
+                      padding: "6px 12px", borderRadius: "20px", fontSize: "12px",
+                      border: isSelected ? `1.5px solid ${C.gold}` : `1px solid ${C.border}`,
+                      background: isSelected ? "rgba(200,135,46,0.2)" : "rgba(0,0,0,0.3)",
+                      color: isSelected ? C.gold : C.muted,
+                      cursor: "pointer", fontFamily: "'Barlow', sans-serif", fontWeight: isSelected ? 700 : 500,
+                    }}>
+                    {ch[lang]}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        );
+      })}
     </div>
   );
 }
@@ -503,15 +521,14 @@ export default function BarOrderApp() {
   const [orderTime, setOrderTime] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [qrPayload, setQrPayload] = useState("");
+  // itemOpts เก็บตัวเลือกที่ลูกค้าเลือกสำหรับแต่ละ item ก่อนเพิ่มลงตะกร้า
+  const [itemOpts, setItemOpts] = useState({});
 
-  // Auto เลือกโต๊ะจาก URL เมื่อลูกค้าสแกน QR
   useEffect(() => {
     if (typeof window !== "undefined") {
       const params = new URLSearchParams(window.location.search);
       const tableParam = params.get("table");
-      if (tableParam && TABLES.includes(tableParam)) {
-        setSelectedTable(tableParam);
-      }
+      if (tableParam && TABLES.includes(tableParam)) setSelectedTable(tableParam);
     }
   }, []);
 
@@ -519,55 +536,74 @@ export default function BarOrderApp() {
   const totalItems = cart.reduce((s, i) => s + i.qty, 0);
   const totalPrice = cart.reduce((s, i) => s + i.price * i.qty, 0);
 
+  // สร้าง label ของ options ที่เลือก
+  const getOptsLabel = (item, opts) => {
+    if (!item.options?.length) return "";
+    return item.options.map((opt, oi) => {
+      const key = `${item.id}-${oi}`;
+      const ci = opts[key];
+      return ci !== undefined ? opt.choices[ci][lang] : null;
+    }).filter(Boolean).join(", ");
+  };
+
   const updateCartItem = (item, delta) => {
+    // สร้าง key สำหรับ cart โดยรวม options ด้วย เพื่อให้เดิม option ต่างกันอยู่แถวต่างกัน
+    const optsLabel = getOptsLabel(item, itemOpts);
+    const cartKey = `${item.id}|${optsLabel}`;
+
     setCart((prev) => {
-      const existing = prev.find((c) => c.id === item.id);
-      if (!existing && delta > 0) return [...prev, { ...item, qty: 1, note: "" }];
+      const existing = prev.find((c) => c.cartKey === cartKey);
+      if (!existing && delta > 0) {
+        return [...prev, { ...item, cartKey, qty: 1, note: "", optsLabel }];
+      }
       if (existing) {
         const nq = existing.qty + delta;
-        if (nq <= 0) return prev.filter((c) => c.id !== item.id);
-        return prev.map((c) => c.id === item.id ? { ...c, qty: nq } : c);
+        if (nq <= 0) return prev.filter((c) => c.cartKey !== cartKey);
+        return prev.map((c) => c.cartKey === cartKey ? { ...c, qty: nq } : c);
       }
       return prev;
     });
   };
 
-  const getQty = (id) => cart.find((c) => c.id === id)?.qty || 0;
-  const updateNote = (id, note) => setCart((p) => p.map((c) => c.id === id ? { ...c, note } : c));
-  const removeItem = (id) => setCart((p) => p.filter((c) => c.id !== id));
+  const getQty = (item) => {
+    const optsLabel = getOptsLabel(item, itemOpts);
+    const cartKey = `${item.id}|${optsLabel}`;
+    return cart.find((c) => c.cartKey === cartKey)?.qty || 0;
+  };
+
+  const updateNote = (cartKey, note) => setCart((p) => p.map((c) => c.cartKey === cartKey ? { ...c, note } : c));
+  const removeItem = (cartKey) => setCart((p) => p.filter((c) => c.cartKey !== cartKey));
 
   const submitOrder = async () => {
     setIsSubmitting(true);
     const now = new Date();
     setOrderTime(now.toLocaleString("en-GB", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" }));
-
     const orderData = {
       customerName, table: selectedTable, paymentMethod, lang,
-      items: cart.map((i) => ({ name: i.name.en, qty: i.qty, price: i.price, note: i.note })),
+      items: cart.map((i) => ({
+        name: i.optsLabel ? `${i.name.en} (${i.optsLabel})` : i.name.en,
+        qty: i.qty, price: i.price,
+        note: i.note,
+        options: i.optsLabel || "",
+      })),
       total: totalPrice,
       timestamp: now.toISOString(),
     };
-
     try {
       await fetch("https://bar-order-backend.up.railway.app/api/order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(orderData),
       });
-    } catch (e) {
-      console.error("Order submission error:", e);
-    }
-
+    } catch (e) { console.error("Order error:", e); }
     setIsSubmitting(false);
     setPage("success");
   };
 
   const resetAll = () => {
     setPage("home"); setCustomerName(""); setSelectedTable("");
-    setCart([]); setPaymentMethod(""); setOrderTime(""); setQrPayload("");
-    if (typeof window !== "undefined") {
-      window.history.replaceState({}, "", window.location.pathname);
-    }
+    setCart([]); setPaymentMethod(""); setOrderTime(""); setQrPayload(""); setItemOpts({});
+    if (typeof window !== "undefined") window.history.replaceState({}, "", window.location.pathname);
   };
 
   // ── HOME ──────────────────────────────────────────────────
@@ -576,23 +612,14 @@ export default function BarOrderApp() {
       <style>{GLOBAL_CSS}</style>
       <div className="fade-in" style={{ width: "100%", maxWidth: "400px" }}>
         <div style={{ textAlign: "center", marginBottom: "32px" }}>
-          <div style={{
-            width: "80px", height: "80px", borderRadius: "50%",
-            background: "linear-gradient(135deg, rgba(200,135,46,0.2), rgba(224,160,64,0.1))",
-            border: `2px solid ${C.borderActive}`,
-            display: "flex", alignItems: "center", justifyContent: "center",
-            fontSize: "36px", margin: "0 auto 14px",
-            boxShadow: `0 0 40px rgba(200,135,46,0.25)`,
-          }}>🍺</div>
+          <div style={{ width: "80px", height: "80px", borderRadius: "50%", background: "linear-gradient(135deg, rgba(200,135,46,0.2), rgba(224,160,64,0.1))", border: `2px solid ${C.borderActive}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "36px", margin: "0 auto 14px", boxShadow: `0 0 40px rgba(200,135,46,0.25)` }}>🍺</div>
           <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: "34px", color: C.gold, fontWeight: 900, lineHeight: 1 }}>{t.appName}</h1>
           <p style={{ color: C.muted, fontSize: "11px", letterSpacing: "4px", textTransform: "uppercase", marginTop: "6px" }}>{t.appSub}</p>
         </div>
-
         <div style={{ ...S.card, padding: "16px", marginBottom: "14px" }}>
           <span style={S.label}>{t.language}</span>
           <LangBar lang={lang} setLang={setLang} />
         </div>
-
         <div style={{ ...S.card, padding: "22px" }}>
           <div style={{ marginBottom: "20px" }}>
             <label style={S.label}>{t.yourName}</label>
@@ -605,11 +632,7 @@ export default function BarOrderApp() {
               {TABLES.map((tb) => <option key={tb} value={tb}>{tb}</option>)}
             </select>
           </div>
-          <button
-            style={{ ...S.btnPrimary, opacity: (!customerName.trim() || !selectedTable) ? 0.45 : 1 }}
-            disabled={!customerName.trim() || !selectedTable}
-            onClick={() => setPage("menu")}
-          >{t.startOrder}</button>
+          <button style={{ ...S.btnPrimary, opacity: (!customerName.trim() || !selectedTable) ? 0.45 : 1 }} disabled={!customerName.trim() || !selectedTable} onClick={() => setPage("menu")}>{t.startOrder}</button>
         </div>
       </div>
     </div>
@@ -620,65 +643,41 @@ export default function BarOrderApp() {
     <div style={{ ...S.pageWrap, ...woodBg, paddingBottom: "100px" }}>
       <style>{GLOBAL_CSS}</style>
       <PageHeader title={t.menu} sub={`${customerName} · ${selectedTable}`} lang={lang} setLang={setLang} />
-
-      <div style={{
-        display: "flex", gap: "8px", padding: "12px 16px",
-        overflowX: "auto", background: "rgba(0,0,0,0.2)",
-        borderBottom: `1px solid ${C.border}`,
-        position: "sticky", top: "55px", zIndex: 100,
-      }}>
+      <div style={{ display: "flex", gap: "8px", padding: "12px 16px", overflowX: "auto", background: "rgba(0,0,0,0.2)", borderBottom: `1px solid ${C.border}`, position: "sticky", top: "55px", zIndex: 100 }}>
         {MENU.map((cat) => (
-          <button key={cat.id} className="cat-pill"
-            onClick={() => document.getElementById(cat.id)?.scrollIntoView({ behavior: "smooth", block: "start" })}
-            style={{
-              padding: "7px 14px", borderRadius: "20px", whiteSpace: "nowrap",
-              border: `1px solid ${C.border}`, background: "rgba(0,0,0,0.3)",
-              color: C.muted, fontSize: "12px", cursor: "pointer",
-              fontFamily: "'Barlow', sans-serif", fontWeight: 600,
-            }}>{cat.emoji} {cat.name[lang]}</button>
+          <button key={cat.id} className="cat-pill" onClick={() => document.getElementById(cat.id)?.scrollIntoView({ behavior: "smooth", block: "start" })} style={{ padding: "7px 14px", borderRadius: "20px", whiteSpace: "nowrap", border: `1px solid ${C.border}`, background: "rgba(0,0,0,0.3)", color: C.muted, fontSize: "12px", cursor: "pointer", fontFamily: "'Barlow', sans-serif", fontWeight: 600 }}>{cat.emoji} {cat.name[lang]}</button>
         ))}
       </div>
 
       <div style={{ padding: "0 14px" }}>
         {MENU.map((cat) => (
           <div key={cat.id} id={cat.id} className="fade-in" style={{ marginTop: "22px" }}>
-            <h3 style={{
-              fontFamily: "'Playfair Display', serif",
-              color: C.gold, fontSize: "20px", fontWeight: 700,
-              paddingBottom: "10px", borderBottom: `1px solid ${C.border}`, marginBottom: "12px",
-            }}>{cat.emoji} {cat.name[lang]}</h3>
-
+            <h3 style={{ fontFamily: "'Playfair Display', serif", color: C.gold, fontSize: "20px", fontWeight: 700, paddingBottom: "10px", borderBottom: `1px solid ${C.border}`, marginBottom: "12px" }}>{cat.emoji} {cat.name[lang]}</h3>
             {cat.items.filter((i) => i.enabled).map((item) => {
-              const qty = getQty(item.id);
+              const qty = getQty(item);
+              const hasOpts = item.options?.length > 0;
               return (
                 <div key={item.id} className="menu-item" style={{
                   ...S.card, padding: "14px 16px", marginBottom: "9px",
-                  display: "flex", alignItems: "center", justifyContent: "space-between",
                   borderColor: qty > 0 ? C.borderActive : C.border,
                   background: qty > 0 ? "linear-gradient(145deg,#4A2510 0%,#5A3020 60%,#4A1F09 100%)" : S.card.background,
                 }}>
-                  <div style={{ flex: 1, paddingRight: "12px" }}>
-                    <p style={{ color: C.cream, margin: "0 0 3px", fontSize: "15px", fontWeight: 600 }}>{item.name[lang]}</p>
-                    <p style={{ color: C.gold, margin: 0, fontSize: "14px", fontWeight: 700 }}>{item.price} {t.thb}</p>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                    <div style={{ flex: 1, paddingRight: "12px" }}>
+                      <p style={{ color: C.cream, margin: "0 0 3px", fontSize: "15px", fontWeight: 600 }}>{item.name[lang]}</p>
+                      <p style={{ color: C.gold, margin: 0, fontSize: "14px", fontWeight: 700 }}>{item.price} {t.thb}</p>
+                    </div>
+                    <div style={{ display: "flex", alignItems: "center", gap: "10px", flexShrink: 0 }}>
+                      {qty > 0 && <>
+                        <button className="qty-btn" onClick={() => updateCartItem(item, -1)} style={{ width: "34px", height: "34px", borderRadius: "50%", border: `1px solid ${C.borderActive}`, background: "transparent", color: C.gold, fontSize: "20px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>−</button>
+                        <span style={{ color: C.cream, fontWeight: 900, fontSize: "17px", minWidth: "22px", textAlign: "center" }}>{qty}</span>
+                      </>}
+                      <button className="qty-btn" onClick={() => updateCartItem(item, 1)} style={{ width: "34px", height: "34px", borderRadius: "50%", border: "none", background: qty === 0 ? `linear-gradient(135deg,${C.gold},${C.goldLight})` : "rgba(200,135,46,0.25)", color: qty === 0 ? "#1A0C07" : C.gold, fontSize: "20px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900 }}>+</button>
+                    </div>
                   </div>
-                  <div style={{ display: "flex", alignItems: "center", gap: "10px", flexShrink: 0 }}>
-                    {qty > 0 && <>
-                      <button className="qty-btn" onClick={() => updateCartItem(item, -1)} style={{
-                        width: "34px", height: "34px", borderRadius: "50%",
-                        border: `1px solid ${C.borderActive}`, background: "transparent",
-                        color: C.gold, fontSize: "20px", cursor: "pointer",
-                        display: "flex", alignItems: "center", justifyContent: "center",
-                      }}>−</button>
-                      <span style={{ color: C.cream, fontWeight: 900, fontSize: "17px", minWidth: "22px", textAlign: "center" }}>{qty}</span>
-                    </>}
-                    <button className="qty-btn" onClick={() => updateCartItem(item, 1)} style={{
-                      width: "34px", height: "34px", borderRadius: "50%", border: "none",
-                      background: qty === 0 ? `linear-gradient(135deg,${C.gold},${C.goldLight})` : "rgba(200,135,46,0.25)",
-                      color: qty === 0 ? "#1A0C07" : C.gold,
-                      fontSize: "20px", cursor: "pointer",
-                      display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900,
-                    }}>+</button>
-                  </div>
+                  {hasOpts && (
+                    <OptionsSelector item={item} lang={lang} itemOpts={itemOpts} setItemOpts={setItemOpts} t={t} />
+                  )}
                 </div>
               );
             })}
@@ -688,14 +687,9 @@ export default function BarOrderApp() {
       </div>
 
       {totalItems > 0 && (
-        <button className="cart-btn" onClick={() => setPage("cart")} style={{
-          position: "fixed", bottom: "24px", left: "50%", transform: "translateX(-50%)",
-          background: `linear-gradient(135deg,${C.gold},${C.goldLight})`,
-          border: "none", borderRadius: "50px", color: "#1A0C07",
-          fontWeight: 900, fontSize: "16px", padding: "16px 32px",
-          cursor: "pointer", display: "flex", alignItems: "center", gap: "10px",
-          fontFamily: "'Barlow', sans-serif", whiteSpace: "nowrap", zIndex: 300,
-        }}>🛒 {t.cart} ({totalItems}) · {totalPrice} {t.thb}</button>
+        <button className="cart-btn" onClick={() => setPage("cart")} style={{ position: "fixed", bottom: "24px", left: "50%", transform: "translateX(-50%)", background: `linear-gradient(135deg,${C.gold},${C.goldLight})`, border: "none", borderRadius: "50px", color: "#1A0C07", fontWeight: 900, fontSize: "16px", padding: "16px 32px", cursor: "pointer", display: "flex", alignItems: "center", gap: "10px", fontFamily: "'Barlow', sans-serif", whiteSpace: "nowrap", zIndex: 300 }}>
+          🛒 {t.cart} ({totalItems}) · {totalPrice} {t.thb}
+        </button>
       )}
     </div>
   );
@@ -705,7 +699,6 @@ export default function BarOrderApp() {
     <div style={{ ...S.pageWrap, ...woodBg, paddingBottom: "110px" }}>
       <style>{GLOBAL_CSS}</style>
       <PageHeader title={t.cart} backLabel={t.menu} onBack={() => setPage("menu")} lang={lang} setLang={setLang} />
-
       <div style={{ padding: "14px" }}>
         {cart.length === 0 ? (
           <div className="fade-in" style={{ textAlign: "center", padding: "70px 20px" }}>
@@ -716,43 +709,26 @@ export default function BarOrderApp() {
         ) : (
           <>
             {cart.map((item) => (
-              <div key={item.id} className="fade-in" style={{ ...S.card, padding: "16px", marginBottom: "12px" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "12px" }}>
+              <div key={item.cartKey} className="fade-in" style={{ ...S.card, padding: "16px", marginBottom: "12px" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "8px" }}>
                   <div style={{ flex: 1 }}>
-                    <p style={{ color: C.cream, fontSize: "16px", fontWeight: 600, marginBottom: "4px" }}>{item.name[lang]}</p>
+                    <p style={{ color: C.cream, fontSize: "16px", fontWeight: 600, marginBottom: "3px" }}>{item.name[lang]}</p>
+                    {item.optsLabel && (
+                      <p style={{ color: C.gold, fontSize: "12px", marginBottom: "3px", fontStyle: "italic" }}>▸ {item.optsLabel}</p>
+                    )}
                     <p style={{ color: C.gold, fontSize: "13px" }}>
                       {item.price} {t.thb} × {item.qty} = <strong style={{ fontSize: "15px" }}>{item.price * item.qty} {t.thb}</strong>
                     </p>
                   </div>
-                  <button className="remove-btn" onClick={() => removeItem(item.id)} style={{
-                    background: "rgba(200,60,60,0.12)", border: "1px solid rgba(200,60,60,0.25)",
-                    borderRadius: "8px", color: "#D07070", fontSize: "11px", fontWeight: 700,
-                    padding: "5px 10px", cursor: "pointer", fontFamily: "'Barlow', sans-serif",
-                  }}>{t.remove}</button>
+                  <button className="remove-btn" onClick={() => removeItem(item.cartKey)} style={{ background: "rgba(200,60,60,0.12)", border: "1px solid rgba(200,60,60,0.25)", borderRadius: "8px", color: "#D07070", fontSize: "11px", fontWeight: 700, padding: "5px 10px", cursor: "pointer", fontFamily: "'Barlow', sans-serif" }}>{t.remove}</button>
                 </div>
                 <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "12px" }}>
                   <span style={{ color: C.muted, fontSize: "12px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "1px" }}>{t.qty}:</span>
-                  <button className="qty-btn" onClick={() => updateCartItem(item, -1)} style={{
-                    width: "32px", height: "32px", borderRadius: "50%",
-                    border: `1px solid ${C.border}`, background: "transparent",
-                    color: C.muted, fontSize: "18px", cursor: "pointer",
-                    display: "flex", alignItems: "center", justifyContent: "center",
-                  }}>−</button>
+                  <button className="qty-btn" onClick={() => updateCartItem(item, -1)} style={{ width: "32px", height: "32px", borderRadius: "50%", border: `1px solid ${C.border}`, background: "transparent", color: C.muted, fontSize: "18px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>−</button>
                   <span style={{ color: C.cream, fontWeight: 900, fontSize: "18px", minWidth: "26px", textAlign: "center" }}>{item.qty}</span>
-                  <button className="qty-btn" onClick={() => updateCartItem(item, 1)} style={{
-                    width: "32px", height: "32px", borderRadius: "50%", border: "none",
-                    background: `linear-gradient(135deg,${C.gold},${C.goldLight})`,
-                    color: "#1A0C07", fontSize: "18px", cursor: "pointer",
-                    display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900,
-                  }}>+</button>
+                  <button className="qty-btn" onClick={() => updateCartItem(item, 1)} style={{ width: "32px", height: "32px", borderRadius: "50%", border: "none", background: `linear-gradient(135deg,${C.gold},${C.goldLight})`, color: "#1A0C07", fontSize: "18px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900 }}>+</button>
                 </div>
-                <input
-                  type="text"
-                  placeholder={t.notePlaceholder}
-                  value={item.note || ""}
-                  onChange={(e) => updateNote(item.id, e.target.value)}
-                  style={{ ...S.input, padding: "11px 14px", fontSize: "14px", background: "rgba(0,0,0,0.28)", borderColor: "#4A2C1A" }}
-                />
+                <input type="text" placeholder={t.notePlaceholder} value={item.note || ""} onChange={(e) => updateNote(item.cartKey, e.target.value)} style={{ ...S.input, padding: "11px 14px", fontSize: "14px", background: "rgba(0,0,0,0.28)", borderColor: "#4A2C1A" }} />
               </div>
             ))}
             <div style={{ ...S.card, padding: "16px 20px", marginTop: "6px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
@@ -762,15 +738,10 @@ export default function BarOrderApp() {
           </>
         )}
       </div>
-
       <div style={{ position: "fixed", bottom: 0, left: "50%", transform: "translateX(-50%)", width: "100%", maxWidth: "480px", padding: "14px 16px", background: "linear-gradient(0deg,#120804 60%,transparent 100%)" }}>
         <div style={{ display: "flex", gap: "10px" }}>
           <button style={{ ...S.btnGhost, flex: 1 }} onClick={() => setPage("menu")}>{t.backToMenu}</button>
-          <button
-            style={{ ...S.btnPrimary, flex: 2, opacity: cart.length === 0 ? 0.4 : 1 }}
-            disabled={cart.length === 0}
-            onClick={() => setPage("confirm")}
-          >{t.confirmOrder}</button>
+          <button style={{ ...S.btnPrimary, flex: 2, opacity: cart.length === 0 ? 0.4 : 1 }} disabled={cart.length === 0} onClick={() => setPage("confirm")}>{t.confirmOrder}</button>
         </div>
       </div>
     </div>
@@ -781,17 +752,11 @@ export default function BarOrderApp() {
     <div style={{ ...S.pageWrap, ...woodBg, paddingBottom: "110px" }}>
       <style>{GLOBAL_CSS}</style>
       <PageHeader title={t.orderSummary} backLabel={t.cart} onBack={() => setPage("cart")} lang={lang} setLang={setLang} />
-
       <div style={{ padding: "14px" }} className="fade-in">
-        <div style={{
-          background: "rgba(200,135,46,0.1)", border: "1px solid rgba(200,135,46,0.3)",
-          borderRadius: "14px", padding: "13px 16px", marginBottom: "14px",
-          display: "flex", gap: "10px", alignItems: "center",
-        }}>
+        <div style={{ background: "rgba(200,135,46,0.1)", border: "1px solid rgba(200,135,46,0.3)", borderRadius: "14px", padding: "13px 16px", marginBottom: "14px", display: "flex", gap: "10px", alignItems: "center" }}>
           <span style={{ fontSize: "18px" }}>⚠️</span>
           <p style={{ color: "#E0A040", margin: 0, fontSize: "14px", fontWeight: 600 }}>{t.reviewWarning}</p>
         </div>
-
         <div style={{ ...S.card, padding: "18px", marginBottom: "12px" }}>
           {[["👤", t.customer, customerName], ["🪑", t.table, selectedTable]].map(([icon, label, val]) => (
             <div key={label} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px" }}>
@@ -800,28 +765,28 @@ export default function BarOrderApp() {
             </div>
           ))}
         </div>
-
         <div style={{ ...S.card, padding: "18px", marginBottom: "12px" }}>
           <p style={{ color: C.muted, fontSize: "11px", textTransform: "uppercase", letterSpacing: "2px", fontWeight: 700, marginBottom: "14px" }}>🍽 {t.items}</p>
           {cart.map((item, i) => (
-            <div key={item.id} style={{ paddingBottom: "11px", marginBottom: "11px", borderBottom: i < cart.length - 1 ? "1px solid rgba(107,61,30,0.4)" : "none" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <span style={{ color: C.cream, fontSize: "15px" }}>
-                  <span style={{ color: C.gold, fontWeight: 800 }}>{item.qty}×</span> {item.name[lang]}
-                </span>
-                <span style={{ color: C.gold, fontWeight: 700, fontSize: "15px" }}>{item.price * item.qty} {t.thb}</span>
+            <div key={item.cartKey} style={{ paddingBottom: "11px", marginBottom: "11px", borderBottom: i < cart.length - 1 ? "1px solid rgba(107,61,30,0.4)" : "none" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                <div>
+                  <span style={{ color: C.cream, fontSize: "15px" }}>
+                    <span style={{ color: C.gold, fontWeight: 800 }}>{item.qty}×</span> {item.name[lang]}
+                  </span>
+                  {item.optsLabel && <p style={{ color: C.muted, fontSize: "12px", marginTop: "2px", fontStyle: "italic" }}>▸ {item.optsLabel}</p>}
+                  {item.note && <p style={{ color: C.muted, fontSize: "12px", marginTop: "2px", fontStyle: "italic" }}>📝 {item.note}</p>}
+                </div>
+                <span style={{ color: C.gold, fontWeight: 700, fontSize: "15px", flexShrink: 0, marginLeft: "8px" }}>{item.price * item.qty} {t.thb}</span>
               </div>
-              {item.note && <p style={{ color: C.muted, fontSize: "12px", marginTop: "4px", fontStyle: "italic" }}>📝 {item.note}</p>}
             </div>
           ))}
         </div>
-
         <div style={{ ...S.card, padding: "16px 20px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <span style={{ color: C.muted, fontSize: "16px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "1px" }}>{t.total}</span>
           <span style={{ color: C.gold, fontSize: "30px", fontWeight: 900, fontFamily: "'Playfair Display', serif" }}>{totalPrice} {t.thb}</span>
         </div>
       </div>
-
       <div style={{ position: "fixed", bottom: 0, left: "50%", transform: "translateX(-50%)", width: "100%", maxWidth: "480px", padding: "14px 16px", background: "linear-gradient(0deg,#120804 60%,transparent 100%)" }}>
         <button style={S.btnPrimary} onClick={() => setPage("payment")}>{t.confirmOrder}</button>
       </div>
@@ -833,23 +798,13 @@ export default function BarOrderApp() {
     <div style={{ ...S.pageWrap, ...woodBg, paddingBottom: "110px" }}>
       <style>{GLOBAL_CSS}</style>
       <PageHeader title={t.payment} backLabel={t.back} onBack={() => setPage("confirm")} lang={lang} setLang={setLang} />
-
       <div style={{ padding: "18px 14px" }} className="fade-in">
         <div style={{ ...S.card, padding: "20px", marginBottom: "24px", textAlign: "center" }}>
           <p style={{ color: C.muted, fontSize: "12px", textTransform: "uppercase", letterSpacing: "2px", marginBottom: "6px", fontWeight: 700 }}>{t.total}</p>
           <p style={{ color: C.gold, fontSize: "36px", fontWeight: 900, fontFamily: "'Playfair Display', serif" }}>{totalPrice} {t.thb}</p>
         </div>
-
         <p style={{ color: C.muted, fontSize: "11px", textTransform: "uppercase", letterSpacing: "2px", marginBottom: "14px", fontWeight: 700, textAlign: "center" }}>{t.selectPayment}</p>
-
-        {/* Cash */}
-        <button className="pay-option" onClick={() => setPaymentMethod("cash")} style={{
-          ...S.card, width: "100%", padding: "20px 18px", marginBottom: "12px",
-          display: "flex", alignItems: "center", gap: "16px",
-          cursor: "pointer", textAlign: "left",
-          border: paymentMethod === "cash" ? `2px solid ${C.borderActive}` : `1px solid ${C.border}`,
-          background: paymentMethod === "cash" ? "linear-gradient(145deg,rgba(200,135,46,0.2),rgba(224,160,64,0.08))" : S.card.background,
-        }}>
+        <button className="pay-option" onClick={() => setPaymentMethod("cash")} style={{ ...S.card, width: "100%", padding: "20px 18px", marginBottom: "12px", display: "flex", alignItems: "center", gap: "16px", cursor: "pointer", textAlign: "left", border: paymentMethod === "cash" ? `2px solid ${C.borderActive}` : `1px solid ${C.border}`, background: paymentMethod === "cash" ? "linear-gradient(145deg,rgba(200,135,46,0.2),rgba(224,160,64,0.08))" : S.card.background }}>
           <span style={{ fontSize: "34px" }}>💵</span>
           <div style={{ flex: 1 }}>
             <p style={{ color: C.cream, fontSize: "18px", fontWeight: 700, marginBottom: "3px" }}>{t.cash}</p>
@@ -857,18 +812,7 @@ export default function BarOrderApp() {
           </div>
           {paymentMethod === "cash" && <span style={{ color: C.gold, fontSize: "22px", fontWeight: 900 }}>✓</span>}
         </button>
-
-        {/* PromptPay */}
-        <button className="pay-option" onClick={() => {
-          setPaymentMethod("promptpay");
-          setQrPayload(buildPromptPayQR(totalPrice));
-        }} style={{
-          ...S.card, width: "100%", padding: "20px 18px", marginBottom: "16px",
-          display: "flex", alignItems: "center", gap: "16px",
-          cursor: "pointer", textAlign: "left",
-          border: paymentMethod === "promptpay" ? `2px solid ${C.borderActive}` : `1px solid ${C.border}`,
-          background: paymentMethod === "promptpay" ? "linear-gradient(145deg,rgba(200,135,46,0.2),rgba(224,160,64,0.08))" : S.card.background,
-        }}>
+        <button className="pay-option" onClick={() => { setPaymentMethod("promptpay"); setQrPayload(buildPromptPayQR(totalPrice)); }} style={{ ...S.card, width: "100%", padding: "20px 18px", marginBottom: "16px", display: "flex", alignItems: "center", gap: "16px", cursor: "pointer", textAlign: "left", border: paymentMethod === "promptpay" ? `2px solid ${C.borderActive}` : `1px solid ${C.border}`, background: paymentMethod === "promptpay" ? "linear-gradient(145deg,rgba(200,135,46,0.2),rgba(224,160,64,0.08))" : S.card.background }}>
           <span style={{ fontSize: "34px" }}>📱</span>
           <div style={{ flex: 1 }}>
             <p style={{ color: C.cream, fontSize: "18px", fontWeight: 700, marginBottom: "3px" }}>{t.promptpay}</p>
@@ -876,38 +820,20 @@ export default function BarOrderApp() {
           </div>
           {paymentMethod === "promptpay" && <span style={{ color: C.gold, fontSize: "22px", fontWeight: 900 }}>✓</span>}
         </button>
-
-        {/* QR Code Panel */}
         {paymentMethod === "promptpay" && (
           <div className="pop-in" style={{ ...S.card, padding: "24px", textAlign: "center" }}>
-            <p style={{ color: C.gold, fontSize: "13px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "1.5px", marginBottom: "18px" }}>
-              {t.qrInstructions}
-            </p>
+            <p style={{ color: C.gold, fontSize: "13px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "1.5px", marginBottom: "18px" }}>{t.qrInstructions}</p>
             <div style={{ padding: "12px", background: "white", borderRadius: "16px", display: "inline-block", marginBottom: "14px" }}>
               <QRImage value={qrPayload} size={180} />
             </div>
-            <p style={{ color: C.gold, fontSize: "26px", fontWeight: 900, fontFamily: "'Playfair Display', serif" }}>
-              {totalPrice} {t.thb}
-            </p>
-            <p style={{ color: C.muted, fontSize: "12px", marginTop: "6px" }}>
-              {t.scanToPay} · PromptPay
-            </p>
+            <p style={{ color: C.gold, fontSize: "26px", fontWeight: 900, fontFamily: "'Playfair Display', serif" }}>{totalPrice} {t.thb}</p>
+            <p style={{ color: C.muted, fontSize: "12px", marginTop: "6px" }}>{t.scanToPay} · PromptPay</p>
           </div>
         )}
       </div>
-
       <div style={{ position: "fixed", bottom: 0, left: "50%", transform: "translateX(-50%)", width: "100%", maxWidth: "480px", padding: "14px 16px", background: "linear-gradient(0deg,#120804 60%,transparent 100%)" }}>
-        <button
-          style={{ ...S.btnPrimary, opacity: (!paymentMethod || isSubmitting) ? 0.45 : 1, display: "flex", alignItems: "center", justifyContent: "center", gap: "10px" }}
-          disabled={!paymentMethod || isSubmitting}
-          onClick={submitOrder}
-        >
-          {isSubmitting ? (
-            <>
-              <span style={{ width: "18px", height: "18px", border: "2px solid #1A0C07", borderTop: "2px solid transparent", borderRadius: "50%", animation: "spin 0.8s linear infinite", display: "inline-block" }} />
-              {t.loading}
-            </>
-          ) : t.submitOrder}
+        <button style={{ ...S.btnPrimary, opacity: (!paymentMethod || isSubmitting) ? 0.45 : 1, display: "flex", alignItems: "center", justifyContent: "center", gap: "10px" }} disabled={!paymentMethod || isSubmitting} onClick={submitOrder}>
+          {isSubmitting ? (<><span style={{ width: "18px", height: "18px", border: "2px solid #1A0C07", borderTop: "2px solid transparent", borderRadius: "50%", animation: "spin 0.8s linear infinite", display: "inline-block" }} />{t.loading}</>) : t.submitOrder}
         </button>
       </div>
     </div>
@@ -918,17 +844,9 @@ export default function BarOrderApp() {
     <div style={{ ...S.pageWrap, ...woodBg, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "28px 20px", minHeight: "100vh" }}>
       <style>{GLOBAL_CSS}</style>
       <div className="pop-in" style={{ width: "100%", maxWidth: "400px", textAlign: "center" }}>
-        <div style={{
-          width: "100px", height: "100px", borderRadius: "50%",
-          background: "linear-gradient(135deg,rgba(124,184,122,0.2),rgba(80,150,80,0.1))",
-          border: "2px solid #7CB87A",
-          display: "flex", alignItems: "center", justifyContent: "center",
-          margin: "0 auto 22px", fontSize: "44px",
-          boxShadow: "0 0 40px rgba(124,184,122,0.2)",
-        }}>🎉</div>
+        <div style={{ width: "100px", height: "100px", borderRadius: "50%", background: "linear-gradient(135deg,rgba(124,184,122,0.2),rgba(80,150,80,0.1))", border: "2px solid #7CB87A", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 22px", fontSize: "44px", boxShadow: "0 0 40px rgba(124,184,122,0.2)" }}>🎉</div>
         <h1 style={{ fontFamily: "'Playfair Display', serif", color: "#7CB87A", fontSize: "30px", marginBottom: "10px" }}>{t.orderSuccess}</h1>
         <p style={{ color: C.muted, fontSize: "15px", lineHeight: 1.6, marginBottom: "30px" }}>{t.successMessage}</p>
-
         <div style={{ ...S.card, padding: "20px", marginBottom: "14px", textAlign: "left" }}>
           {[["🕐", t.time, orderTime], ["👤", t.customer, customerName], ["🪑", t.table, selectedTable], ["💳", t.payment, paymentMethod === "cash" ? t.cash : t.promptpay]].map(([icon, label, val]) => (
             <div key={label} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "11px" }}>
@@ -937,15 +855,17 @@ export default function BarOrderApp() {
             </div>
           ))}
         </div>
-
         <div style={{ ...S.card, padding: "18px", marginBottom: "20px", textAlign: "left" }}>
           {cart.map((item) => (
-            <div key={item.id} style={{ display: "flex", justifyContent: "space-between", marginBottom: "7px" }}>
-              <span style={{ color: C.muted, fontSize: "14px" }}>
-                <span style={{ color: C.gold, fontWeight: 800 }}>{item.qty}×</span> {item.name[lang]}
-                {item.note && <span style={{ fontSize: "11px", fontStyle: "italic", display: "block", color: C.dimmed }}>📝 {item.note}</span>}
-              </span>
-              <span style={{ color: C.gold, fontWeight: 700, fontSize: "14px" }}>{item.price * item.qty} {t.thb}</span>
+            <div key={item.cartKey} style={{ marginBottom: "8px" }}>
+              <div style={{ display: "flex", justifyContent: "space-between" }}>
+                <span style={{ color: C.muted, fontSize: "14px" }}>
+                  <span style={{ color: C.gold, fontWeight: 800 }}>{item.qty}×</span> {item.name[lang]}
+                </span>
+                <span style={{ color: C.gold, fontWeight: 700, fontSize: "14px" }}>{item.price * item.qty} {t.thb}</span>
+              </div>
+              {item.optsLabel && <p style={{ fontSize: "11px", color: C.dimmed, fontStyle: "italic", marginTop: "2px" }}>▸ {item.optsLabel}</p>}
+              {item.note && <p style={{ fontSize: "11px", fontStyle: "italic", color: C.dimmed, marginTop: "2px" }}>📝 {item.note}</p>}
             </div>
           ))}
           <div style={{ borderTop: `1px solid ${C.border}`, marginTop: "12px", paddingTop: "12px", display: "flex", justifyContent: "space-between" }}>
@@ -953,7 +873,6 @@ export default function BarOrderApp() {
             <span style={{ color: C.gold, fontWeight: 900, fontSize: "20px", fontFamily: "'Playfair Display', serif" }}>{totalPrice} {t.thb}</span>
           </div>
         </div>
-
         <button style={S.btnPrimary} onClick={resetAll}>{t.newOrder}</button>
       </div>
     </div>
