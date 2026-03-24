@@ -155,23 +155,23 @@ const MENU = [
     id:"bottle_beer",emoji:"🍻",
     name:{en:"Bottle Beer",th:"เบียร์ขวด",ru:"Бутылочное пиво",de:"Flaschenbier"},
     items:[
-      {id:5,price:70,enabled:true,name:{en:"Chang",th:"ช้าง",ru:"Чанг",de:"Chang"}},
-      {id:6,price:70,enabled:true,name:{en:"Singha",th:"สิงห์",ru:"Сингха",de:"Singha"}},
-      {id:7,price:70,enabled:true,name:{en:"LEO",th:"ลีโอ",ru:"Лео",de:"Leo"}},
-      {id:8,price:80,enabled:true,name:{en:"San Miguel",th:"ซานมิเกล",ru:"Сан Мигель",de:"San Miguel"}},
-      {id:9,price:80,enabled:true,name:{en:"Heineken",th:"ไฮเนเก้น",ru:"Хайнекен",de:"Heineken"}},
-      {id:10,price:80,enabled:true,name:{en:"Pattaya Beer",th:"พัทยาเบียร์",ru:"Паттайя Бир",de:"Pattaya Beer"}},
-      {id:11,price:80,enabled:true,name:{en:"Asahi",th:"อาซาฮี",ru:"Асахи",de:"Asahi"}},
-      {id:12,price:90,enabled:true,name:{en:"Budweiser",th:"บัดไวเซอร์",ru:"Будвайзер",de:"Budweiser"}},
-      {id:13,price:90,enabled:true,name:{en:"Stella Artois",th:"สเตลล่า อาร์ทัวส์",ru:"Стелла Артуа",de:"Stella Artois"}},
-      {id:14,price:100,enabled:true,name:{en:"German Recipe",th:"เยอรมัน เรสซิปี้",ru:"Немецкий рецепт",de:"German Recipe"},
-        options:[opt("Type","ประเภท","Тип","Typ",[["Lager","ลาเกอร์","Лагер","Lager"],["Unfiltered","ไม่กรอง","Нефильтрованное","Ungefiltert"],["Dark","ดาร์ก","Тёмное","Dunkel"]])]},
-      {id:15,price:120,enabled:true,name:{en:"Beerlao",th:"เบียร์ลาว",ru:"Бирлао",de:"Beerlao"},
-        options:[opt("Type","ประเภท","Тип","Typ",[["Premium Lager","พรีเมี่ยม ลาเกอร์","Премиум Лагер","Premium Lager"],["IPA","IPA","IPA","IPA"],["Dark","ดาร์ก","Тёมное","Dunkel"]])]},
-      {id:16,price:120,enabled:true,name:{en:"Corona Beer",th:"โคโรน่า",ru:"Корона",de:"Corona"}},
-      {id:17,price:150,enabled:true,name:{en:"Savanna Premium Cider",th:"ซาวานน่า ไซเดอร์",ru:"Саванна Сидр",de:"Savanna Cider"}},
-      {id:18,price:180,enabled:true,name:{en:"Hoegaarden 550ml",th:"ฮูการ์เดน 550มล.",ru:"Хугарден 550мл",de:"Hoegaarden 550ml"},
-        options:[opt("Type","ประเภท","Тип","Typ",[["Witbier","วิทเบียร์","Витбир","Witbier"],["Rosée","โรเซ่","Розе","Rosée"]])]},
+      {id:5,price:70,enabled:true,name:{en:"Chang",th:"ช้าง",ru:"Чанг",de:"Chang"}, loyverse_item_id:"3aceaaeb-ad56-49d6-9988-98fb00cef068", loyverse_variant_id:"b1eaad24-4ed4-4f01-b6df-76686532ab98"},
+      {id:6,price:70,enabled:true,name:{en:"Singha",th:"สิงห์",ru:"Сингха",de:"Singha"}, loyverse_item_id:"419f49fd-d697-4567-87dd-a51422238113", loyverse_variant_id:"5df87d58-35f9-4ca5-8015-7bacef425df9"},
+      {id:7,price:70,enabled:true,name:{en:"LEO",th:"ลีโอ",ru:"Лео",de:"Leo"}, loyverse_item_id:"5f35b5ae-e310-4af8-9009-339aff1f578d", loyverse_variant_id:"330dbb97-2847-462b-9600-45151fa4f042"},
+      {id:8,price:80,enabled:true,name:{en:"San Miguel",th:"ซานมิเกล",ru:"Сан Мигель",de:"San Miguel"}, loyverse_item_id:"345b8b85-5fa6-47de-8d45-16821a7a6ca1", loyverse_variant_id:"48451723-4eac-4fc8-b3b9-3d3d1b0e25ec"},
+      {id:9,price:80,enabled:true,name:{en:"Heineken",th:"ไฮเนเก้น",ru:"Хайнекен",de:"Heineken"}, loyverse_item_id:"ca875196-3c05-40fb-812d-4c41b82389d9", loyverse_variant_id:"d4c7d248-31bd-4633-adbb-b2ef510bb68c"},
+      {id:10,price:80,enabled:true,name:{en:"Pattaya Beer",th:"พัทยาเบียร์",ru:"Паттайя Бир",de:"Pattaya Beer"}, loyverse_item_id: "d657900e-a032-4fa8-a352-ecf867a4c51d", loyverse_variant_id: "d3fa5c1d-8fdd-45b6-96c3-834a0138fe16"},
+      {id:11,price:80,enabled:true,name:{en:"Asahi",th:"อาซาฮี",ru:"Асахи",de:"Asahi"}, loyverse_item_id: "f0053270-55e0-477d-a522-d461931af552", loyverse_variant_id: "1337cf63-6b13-4498-98eb-e0ac14e0358f"},
+      {id:12,price:90,enabled:true,name:{en:"Budweiser",th:"บัดไวเซอร์",ru:"Будвайзер",de:"Budweiser"}, loyverse_item_id: "f12211ae-188a-4e35-963e-24e50def64fb", loyverse_variant_id: "469a6e48-3742-454a-b006-99dba5ac4448"},
+      {id:13,price:90,enabled:true,name:{en:"Stella Artois",th:"สเตลล่า อาร์ทัวส์",ru:"Стелла Артуа",de:"Stella Artois"}, loyverse_item_id: "bf316a53-f3d5-45df-9650-5c30f9bd25f2", loyverse_variant_id: "d8220d51-b9dd-4c49-bb68-e1bb4d755ba8"},
+      {id:14,price:100,enabled:true,name:{en:"German Recipe",th:"เยอรมัน เรสซิปี้",ru:"Немецкий рецепт",de:"German Recipe"}, loyverse_item_id: "e0b298d2-17b4-475e-acc8-6d736c4c3c59", loyverse_variant_id: "cec3c77e-15bd-4b86-b54a-2b0eb4718414"
+      , options:[opt("Type","ประเภท","Тип","Typ",[["Lager","ลาเกอร์","Лагер","Lager"],["Unfiltered","ไม่กรอง","Нефильтрованное","Ungefiltert"],["Dark","ดาร์ก","Тёмное","Dunkel"]])]},
+      {id:15,price:120,enabled:true,name:{en:"Beerlao",th:"เบียร์ลาว",ru:"Бирлао",de:"Beerlao"}, loyverse_item_id: "6b4f0f1a-741e-4379-b075-6dbca8e685bd", loyverse_variant_id: "e3568f67-fc6b-40da-802c-1f59d882790c"
+      , options:[opt("Type","ประเภท","Тип","Typ",[["Premium Lager","พรีเมี่ยม ลาเกอร์","Премиум Лагер","Premium Lager"],["IPA","IPA","IPA","IPA"],["Dark","ดาร์ก","Тёмное","Dunkel"]])]},
+      {id:16,price:120,enabled:true,name:{en:"Corona Beer",th:"โคโรน่า",ru:"Корона",de:"Corona"}, loyverse_item_id: "78869b70-c257-417d-acc2-09ed0438578e", loyverse_variant_id: "4b974cae-0670-4762-87d0-95e3093f852e"},
+      {id:17,price:150,enabled:true,name:{en:"Savanna Premium Cider",th:"ซาวานน่า ไซเดอร์",ru:"Саванна Сидр",de:"Savanna Cider"}, loyverse_item_id: "21df57f5-4157-4ab0-bb91-83ac5380bb51", loyverse_variant_id: "c4a6f817-ceb2-478c-8e20-d8bdcecbc8cf"},
+      {id:18,price:180,enabled:true,name:{en:"Hoegaarden 550ml",th:"ฮูการ์เดน 550มล.",ru:"Хугарден 550мл",de:"Hoegaarden 550ml"}, loyverse_item_id: "a8c2ae65-aff7-4715-a458-886297c2c086", loyverse_variant_id: "270bb1ff-3cfa-45a5-b742-c83cfcf451ec"
+      , options:[opt("Type","ประเภท","Тип","Typ",[["Witbier","วิทเบียร์","Витбир","Witbier"],["Rosée","โรเซ่","Розе","Rosée"]])]},
     ],
   },
   {
@@ -536,6 +536,9 @@ export default function BarOrderApp(){
       items:cart.map(i=>({
         name:i.optsLabel?`${i.name.en} (${i.optsLabel})`:i.name.en,
         qty:i.qty,price:i.price,note:i.note,options:i.optsLabel||"",
+        // --- ส่วนที่ครูเพิ่มให้: ดึงรหัส Loyverse จากเมนู ใส่ลงในพัสดุ ---
+        loyverse_item_id: i.loyverse_item_id || "",
+        loyverse_variant_id: i.loyverse_variant_id || ""
       })),
       total:totalPrice,
       slip_url:finalSlipUrl||"",
@@ -600,7 +603,7 @@ export default function BarOrderApp(){
       <PageHeader title={t.menu} sub={`${customerName} · ${selectedTable}`} lang={lang} setLang={setLang}/>
 
       {/* Sticky Category Pills */}
-      <div style={{display:"flex",gap:"8px",padding:"10px 16px",overflowX:"auto",overflowY:"hidden",background:"rgba(26,12,7,0.97)",backdropFilter:"blur(12px)",WebkitBackdropFilter:"blur(12px)",borderBottom:`1px solid ${C.border}`,position:"sticky",top:"53px",zIndex:100,WebkitOverflowScrolling:"touch"}}>
+      <div style={{display:"flex",gap:"8px",padding:"10px 16px",overflowX:"auto",overflowY:"hidden",background:"rgba(26,12,7,0.97)",backdropFilter:"blur(12px)",WebkitBackdropFilter:"blur(12px)",borderBottom:`1px solid ${C.border}`,position:"sticky",top:"55px",zIndex:100,WebkitOverflowScrolling:"touch"}}>
         {MENU.map(cat=>(
           <button key={cat.id} className="cat-pill"
             onClick={()=>{
